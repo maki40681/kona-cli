@@ -20,6 +20,11 @@ The first field takes number of sample wallpapers to view. The second field take
 
 The wallpapers are downloaded to `$XDG_DATA_HOME/backgrounds` or `$HOME/.local/share/backgrounds`.
 
+## Additional features of this fork
+
+* Search wallpapers with more than one query tag.
+
+
 ## Why Konachan ?
 
 Konachan focuses on desktop anime wallpapers rather than other image boards (Danbooru/Gelbooru) which use any resolution images.

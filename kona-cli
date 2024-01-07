@@ -37,18 +37,26 @@ fi
 
 search(){
 
-if [ -n "$1" ] && [ -n "$2" ]
+if [ "$#" -ge 2 ]
 then
-    
-    tag_list=$(curl -s "https://konachan.com/tag.json?limit=10" -d "order=count" -d "name=$2" | jq '.[].name' | tr -d '"')
 
-    PS3=$(printf '\n\x1B[34m%s\x1B[0m\n' "Choose your mood: ")
-    export PS3
-    select choice in $tag_list
-    do
-	json_data=$(curl -s "https://konachan.com/post.json?limit=$1" -d "tags=$choice" | jq | sed -e '1d;$d' -e 's/\},/\}/g')
-      	break
-    done
+    set -- "$@"
+    limit=$1
+    shift 1
+    tags=$(printf '%s+' "$@" | sed -e 's/ /+/g')
+
+    if [ "$#" = 1 ]
+    then
+	tag_list=$(curl -s "https://konachan.com/tag.json?limit=10" -d "order=count" -d "name=$1" | jq '.[].name' | tr -d '"')
+	PS3=$(printf '\n\x1B[34m%s\x1B[0m\n' "Choose your mood: ")
+	export PS3
+	select choice in $tag_list
+	do
+	    json_data=$(curl -s "https://konachan.com/post.json?limit=$limit" -d "tags=$choice" | jq | sed -e '1d;$d' -e 's/\},/\}/g')
+	done
+    else
+	json_data=$(curl -s "https://konachan.com/post.json?limit=$limit" -d "tags=$tags+" | jq | sed -e '1d;$d' -e 's/\},/\}/g')
+    fi
 
     if [ -n "$json_data" ]
     then
@@ -105,7 +113,7 @@ rm /tmp/konachan/* &> /dev/null
 case $1 in
     gn|get_new ) get_new ;;
     id|get_id ) get_id "$2" ;;
-    se|search ) search "$2" "$3" ;;
+    se|search ) set -- "$@"; shift 1; search "$@" ;;
      * ) printf '%s\n' "
 Usage: mv [gn|id [X]|se [Y] [Z]]
 
